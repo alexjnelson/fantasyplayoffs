@@ -2,7 +2,6 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     ENVIRONMENT: str = "dev"
-
     DATABASE_URL: str = ""
 
     CLIENT_ID: str = ""
@@ -10,6 +9,6 @@ class Settings(BaseSettings):
     REDIRECT_URI: str = ""
 
     class Config:
-        env_file = ".env"
+        env_file = "app/.env"
 
 settings = Settings()

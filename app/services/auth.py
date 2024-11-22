@@ -1,10 +1,8 @@
 from fastapi import HTTPException, requests, status
 from jose import JWTError, jwt
-from app.config import Settings
-from app.models import User
 
-from app.config import Settings
-from app.models import User
+from app.config import settings
+from app.models import Users
 
 
 def decode_google_token(id_token: str) -> dict[str, any]:
@@ -18,7 +16,7 @@ def decode_google_token(id_token: str) -> dict[str, any]:
             id_token,
             certs,
             algorithms=["RS256"],
-            audience=Settings.CLIENT_ID,
+            audience=settings.CLIENT_ID,
             options={"verify_at_hash": False}
         )
         return payload
@@ -27,27 +25,27 @@ def decode_google_token(id_token: str) -> dict[str, any]:
             status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
 
 
-def authenticate_token(id_token: str) -> User:        
-    payload = decode_google_token(id_token)
-    return User(
-        id=payload.get("sub"),
-        name=payload.get("name"),
-        email=payload.get("email")
-    )
-
-
 def get_token(code: str) -> str:
     # Exchange code for token
     token_response = requests.post(
         "https://oauth2.googleapis.com/token",
         data={
-            "client_id": Settings.CLIENT_ID,
-            "client_secret": Settings.CLIENT_SECRET,
+            "client_id": settings.CLIENT_ID,
+            "client_secret": settings.CLIENT_SECRET,
             "code": code,
             "grant_type": "authorization_code",
-            "redirect_uri": Settings.REDIRECT_URI,
+            "redirect_uri": settings.REDIRECT_URI,
         },
     ).json()
 
     # Extract ID token and access token from the response
     return token_response.get("id_token")
+
+
+def authenticate_token(id_token: str) -> Users:        
+    payload = decode_google_token(id_token)
+    return Users(
+        id=payload.get("sub"),
+        name=payload.get("name"),
+        email=payload.get("email")
+    )

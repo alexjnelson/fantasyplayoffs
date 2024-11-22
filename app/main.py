@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import auth
+from app.routers import auth_router
 
 # Initialize FastAPI
 app = FastAPI()
@@ -10,4 +10,4 @@ def on_startup():
     pass
 
 # Include routers
-app.include_router(auth.router, prefix="/api", tags=["User"])
+app.include_router(auth_router, prefix="/api", tags=["User"])
