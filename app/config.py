@@ -1,15 +1,13 @@
-from pydantic import BaseSettings
-from dotenv import load_dotenv
-import os
+from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     ENVIRONMENT: str = "dev"
 
-    DATABASE_URL: str = None
+    DATABASE_URL: str = ""
 
-    CLIENT_ID: str = None
-    CLIENT_SECRET: str = None
-    REDIRECT_URI: str = None
+    CLIENT_ID: str = ""
+    CLIENT_SECRET: str = ""
+    REDIRECT_URI: str = ""
 
     class Config:
         env_file = ".env"
