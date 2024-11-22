@@ -1,7 +1,7 @@
 from sqlmodel import Session, select
 
-from app.models import Users
-from app.db import handle_add_errors
+from models import Users
+from db import handle_add_errors
 
 
 @handle_add_errors

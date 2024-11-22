@@ -2,10 +2,10 @@ from fastapi import APIRouter, Body, Depends, HTTPException, status
 from fastapi.responses import RedirectResponse
 from sqlmodel import Session
 
-from app.config import settings
-from app.db import get_session
-from app.models import Users
-from app.services import get_or_create_user, get_user_by_email, get_token, authenticate_token
+from config import settings
+from db import get_session
+from models import Users
+from services import get_or_create_user, get_user_by_email, get_token, authenticate_token
 
 
 router = APIRouter(prefix="/auth")

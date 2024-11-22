@@ -1,8 +1,8 @@
 from fastapi import HTTPException, requests, status
 from jose import JWTError, jwt
 
-from app.config import settings
-from app.models import Users
+from config import settings
+from models import Users
 
 
 def decode_google_token(id_token: str) -> dict[str, any]:

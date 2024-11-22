@@ -9,6 +9,6 @@ class Settings(BaseSettings):
     REDIRECT_URI: str = ""
 
     class Config:
-        env_file = "app/.env"
+        env_file = ".env"
 
 settings = Settings()
