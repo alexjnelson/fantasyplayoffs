@@ -1,7 +1,5 @@
 from fastapi import FastAPI
-from app.routers import user
-from app.db import engine
-from app.models import SQLModel
+from app.routers import auth
 
 # Initialize FastAPI
 app = FastAPI()
@@ -9,7 +7,7 @@ app = FastAPI()
 # Create database tables
 @app.on_event("startup")
 def on_startup():
-    SQLModel.metadata.create_all(engine)
+    pass
 
 # Include routers
-app.include_router(user.router, prefix="/api", tags=["User"])
+app.include_router(auth.router, prefix="/api", tags=["User"])

@@ -1,10 +1,16 @@
 from pydantic import BaseSettings
+from dotenv import load_dotenv
+import os
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "sqlite:///./test.db"  # Replace with your DB URL
-    CLIENT_ID = str = ""
-    CLIENT_SECRET = str = ""
-    REDIRECT_URI = str = ""
+    load_dotenv()
+
+    ENVIRONMENT: str = os.getenv("ENVIRONMENT")
+    
+    DATABASE_URL: str = os.getenv("DATABASE_URL")
+    CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID")
+    CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET")
+    REDIRECT_URI: str = os.getenv("REDIRECT_URI")
 
     class Config:
         env_file = ".env"
