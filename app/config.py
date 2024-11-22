@@ -3,14 +3,13 @@ from dotenv import load_dotenv
 import os
 
 class Settings(BaseSettings):
-    load_dotenv()
+    ENVIRONMENT: str = "dev"
 
-    ENVIRONMENT: str = os.getenv("ENVIRONMENT")
-    
-    DATABASE_URL: str = os.getenv("DATABASE_URL")
-    CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID")
-    CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET")
-    REDIRECT_URI: str = os.getenv("REDIRECT_URI")
+    DATABASE_URL: str = None
+
+    CLIENT_ID: str = None
+    CLIENT_SECRET: str = None
+    REDIRECT_URI: str = None
 
     class Config:
         env_file = ".env"
