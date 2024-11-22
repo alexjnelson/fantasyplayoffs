@@ -5,18 +5,9 @@
 - [Docker](https://www.docker.com/get-started)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 
-### Step 1: Clone the Repository
+### Step 1: Configure Environment Variables
 
-```bash
-git clone <repository-url>
-cd <repository-folder>
-```
-
----
-
-### Step 2: Configure Environment Variables
-
-1. Create a `.env` file in the root directory.
+1. Create a `.env` file in the LSSDB directory.
 2. Copy the contents of `.env.example` into `.env`:
    ```bash
    cp .env.example .env
@@ -31,7 +22,7 @@ cd <repository-folder>
 
 ---
 
-### Step 3: Build and Start the Database
+### Step 2: Build and Start the Database
 
 Run the following command to build and start the PostgreSQL container:
 
@@ -47,7 +38,7 @@ This will:
 
 ---
 
-### Step 4: Connect to the Database
+### Step 3: Connect to the Database
 
 You can connect to the PostgreSQL database using any client:
 
@@ -60,12 +51,6 @@ You can connect to the PostgreSQL database using any client:
 | Database Name | `mydatabase` |
 | Username      | `postgres`   |
 | Password      | `mypassword` |
-
-#### Example Using `psql`:
-
-```bash
-psql -h localhost -U postgres -d mydatabase
-```
 
 #### Example Connection String:
 
@@ -83,7 +68,7 @@ postgresql://postgres:mypassword@localhost:5432/mydatabase
 
 ---
 
-### Step 5: Stop the Database
+### Step 4: Stop the Database
 
 To stop the container, press `CTRL+C` or run:
 
@@ -108,7 +93,7 @@ docker-compose up --build
 
 If another project needs to connect to this database, configure its `.env` file with the following connection string:
 
-``` 
+```
 DATABASE_URL = "postgresql://postgres:mypassword@localhost:5432/mydatabase"
 
 ```
