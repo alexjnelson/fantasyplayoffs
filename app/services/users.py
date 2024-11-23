@@ -17,6 +17,7 @@ def get_user(db: Session, user_id: int) -> Users:
     user = db.exec(statement).first()
     return user
 
+
 def get_user_by_email(db: Session, email: str) -> Users:
     statement = select(Users).where(Users.email == email)
     user = db.exec(statement).first()
