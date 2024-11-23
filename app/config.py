@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = ""
     ALLOW_ORIGINS: list[str] = []    
 
+    # not necessary for dev environment
     CLIENT_ID: str = ""
     CLIENT_SECRET: str = ""
     REDIRECT_URI: str = ""
