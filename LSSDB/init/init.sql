@@ -1,10 +1,6 @@
 -- Table: user
 CREATE TABLE IF NOT EXISTS users (
-<<<<<<< HEAD
     id VARCHAR(255) PRIMARY KEY,
-=======
-    id INT PRIMARY KEY,
->>>>>>> 597e9c2c939735d71bbf620d90d3a77d258c3d22
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL
 );
