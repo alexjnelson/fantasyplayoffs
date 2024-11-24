@@ -81,7 +81,7 @@ async def dev_create_user_route(email: str = Body(...), name: str = Body(...), d
         raise HTTPException(403, "Dev login disabled on test environment")
 
     user = Users(
-        id=f"test_id_{email}",
+        id=email,
         name=name,
         email=email
     )

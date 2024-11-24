@@ -22,10 +22,8 @@ def handle_add_errors(func):
         try:
             return func(*args, **kwargs)
         except IntegrityError as e:
-            # Rollback the session if an IntegrityError occurs
             db = kwargs.get("db")
             if db:
                 db.rollback()
-            # Check for specific error types if needed
             raise HTTPException(status_code=400, detail=str(e.orig))
     return wrapper
