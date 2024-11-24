@@ -10,7 +10,9 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql/data # setup persistent database volume
+      - ./init:/docker-entrypoint-initdb.d/ # copy init to docker container
+      - ./logs/postgres:/var/log/postgresql  # Log files
     networks:
       - app-network
 
@@ -20,7 +22,7 @@ services:
       dockerfile: Dockerfile
     container_name: fastapi_container
     ports:
-      - "8000:8000"
+      - "8080:8000"
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}

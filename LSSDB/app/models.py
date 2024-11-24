@@ -1,8 +1,6 @@
-from sqlalchemy import Column, Integer, String
-from app.database import Base
+from sqlmodel import SQLModel, Field
 
-class User(Base):
-    __tablename__ = "users"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    email = Column(String, unique=True, index=True)
+class Users(SQLModel, table=True):
+    id: str = Field(primary_key=True)
+    name: str = Field()
+    email: str = Field(index=True, unique=True)
