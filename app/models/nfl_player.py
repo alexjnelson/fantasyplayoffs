@@ -4,6 +4,7 @@ from typing import Optional, List
 from app.models.nfl_player_game import NFLPlayerGame
 
 class NFLPlayer(SQLModel, table=True):
+    __tablename__ = "nfl_player"
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     photo_url: str
