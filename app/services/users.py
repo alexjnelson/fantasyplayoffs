@@ -12,10 +12,11 @@ def create_user(db: Session, user: Users) -> Users:
     return user
 
 
-def get_user(db: Session, user_id: int) -> Users:
+def get_user(db: Session, user_id: str) -> Users:
     statement = select(Users).where(Users.id == user_id)
     user = db.exec(statement).first()
     return user
+
 
 def get_user_by_email(db: Session, email: str) -> Users:
     statement = select(Users).where(Users.email == email)
@@ -24,7 +25,7 @@ def get_user_by_email(db: Session, email: str) -> Users:
 
 
 def get_or_create_user(db: Session, new_user: Users):
-    user = get_user(db, Users.id)
+    user = get_user(db, new_user.id)
     if user is None:
-        user = create_user(new_user)
+        user = create_user(db, new_user)
     return user
