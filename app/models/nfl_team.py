@@ -1,5 +1,5 @@
-from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional, List
+from sqlmodel import SQLModel, Field
+from typing import Optional
 
 class NFLTeam(SQLModel, table=True):
     __tablename__ = "nfl_team"

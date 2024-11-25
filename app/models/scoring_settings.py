@@ -1,9 +1,8 @@
-from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional, List
+from sqlmodel import SQLModel, Field
 
 class ScoringSettings(SQLModel, table=True):
     __tablename__ = "scoring_settings"
-    league_id: int = Field(foreign_key="league.id")
+    league_id: int = Field(foreign_key="league.id", primary_key=True)
     # Offensive scoring settings
     pass_tds: float
     pass_yds: float

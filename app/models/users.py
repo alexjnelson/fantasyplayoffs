@@ -4,8 +4,8 @@ from typing import Optional, List
 from app.models.fantasy_team import FantasyTeam
 
 class User(SQLModel, table=True):
-    __tablename__ = "user"
+    __tablename__ = "users"
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     email: str
-    teams: List["FantasyTeam"] = Relationship(back_populates="user")
+    teams: List["FantasyTeam"] = Relationship(back_populates="user")  

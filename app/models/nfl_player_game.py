@@ -1,6 +1,6 @@
 from datetime import datetime
 from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional, List
+from typing import Optional
 
 
 from app.models.nfl_player import NFLPlayer
@@ -13,3 +13,4 @@ class NFLPlayerGame(SQLModel, table=True):
     is_home: bool
     opponent_id: int = Field(foreign_key="nfl_team.id")
     player_id: int = Field(foreign_key="nfl_player.id")
+    nfl_player: "NFLPlayer" = Relationship(back_populates="games")
