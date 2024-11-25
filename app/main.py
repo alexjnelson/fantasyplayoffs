@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from routers import auth_router
-
+from routers.websockets import router as websocket_router
 # Initialize FastAPI
 app = FastAPI()
 
@@ -11,3 +11,4 @@ def on_startup():
 
 # Include routers
 app.include_router(auth_router, prefix="/api", tags=["User"])
+app.include_router(websocket_router, prefix="/ws", tags=["WebSockets"])

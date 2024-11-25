@@ -1,17 +1,19 @@
 import logging
-from fastapi import Body, FastAPI, Depends, HTTPException
+import asyncio
+from fastapi import Body, FastAPI, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 from sqlmodel import Session
-
 from app.models import Users
 from app.database import get_session
 from app.config.logging_config import setup_logging
+import random 
 
 
 # Set up logging
 setup_logging()
 api_logger = logging.getLogger("api")
 sqlalchemy_logger = logging.getLogger("sqlalchemy.engine")
+
 
 app = FastAPI()
 
@@ -76,9 +78,44 @@ async def create_user(email: str = Body(...), name: str = Body(...), db: Session
         "google_id": user.id,
     }
 
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()  # Accept the WebSocket connection
+    try:
+        while True:
+            message = await websocket.receive_text()  # Receive a message
+            print(f"Received: {message}")
+            await websocket.send_text(f"Echo: {message}")  # Echo the message back
+    except WebSocketDisconnect:
+        print("Client disconnected")
 
+@app.websocket("/ws/football")
+async def football_websocket(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            # Generate mock live data
+            mock_data = generate_mock_data()
+            await websocket.send_json(mock_data)  # Send JSON data to the client
+            await asyncio.sleep(5)  # Simulate delay between updates
+    except WebSocketDisconnect:
+        print("Client disconnected")
 
-# def get_user(db: Session, user_id: str) -> Users:
-#     statement = select(Users).where(Users.id == user_id)
-#     user = db.exec(statement).first()
-#     return user
+def generate_mock_data():
+    # Mock live football data
+    return {
+        "game_id": "12345",
+        "quarter": random.randint(1, 4),
+        "time_remaining": f"{random.randint(0, 15)}:{random.randint(0, 59):02}",
+        "team_a": {
+            "name": "Eagles",
+            "score": random.randint(0, 50),
+            "possession": random.choice([True, False])
+        },
+        "team_b": {
+            "name": "Patriots",
+            "score": random.randint(0, 50),
+            "possession": random.choice([True, False])
+        },
+        "last_play": random.choice(["Touchdown by Player 10", "Field Goal", "Fumble Recovery", "Interception"])
+    }
