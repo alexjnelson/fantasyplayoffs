@@ -1,30 +1,57 @@
-from fastapi import HTTPException, requests, status
+import requests
+from fastapi import HTTPException, status
 from jose import JWTError, jwt
 
 from config import settings
 from models import Users
 
 
+from jose.exceptions import JWTError
+
 def decode_google_token(id_token: str) -> dict[str, any]:
     try:
-        # Google's public keys URL
-        certs_url = "https://www.googleapis.com/oauth2/v1/certs"
+        # Get Google public certs
+        certs_url = "https://www.googleapis.com/oauth2/v3/certs"
         response = requests.get(certs_url)
-        certs = response.json()
+        jwks = response.json()
 
+        # Extract headers
+        try:
+            unverified_header = jwt.get_unverified_header(id_token)
+        except JWTError as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Error decoding token headers: {str(e)}"
+            )
+
+        # Validate the key ID (kid)
+        kid = unverified_header.get("kid")
+        if not kid or kid not in {key["kid"] for key in jwks["keys"]}:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Unable to find appropriate key for token"
+            )
+
+        # Find the correct key
+        key = next(key for key in jwks["keys"] if key["kid"] == kid)
+
+        # Verify and decode the token
         payload = jwt.decode(
             id_token,
-            certs,
+            key,
             algorithms=["RS256"],
             audience=settings.CLIENT_ID,
-            options={"verify_at_hash": False}
+            options={"verify_at_hash": False},
         )
+
         return payload
-    except JWTError:
+
+    except JWTError as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
-
-
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid token: {str(e)}"
+        )
+    
 def get_token(code: str) -> str:
     # Exchange code for token
     token_response = requests.post(

@@ -26,10 +26,10 @@ const AxiosProvider = ({ token, children }: AxiosProviderProps): JSX.Element => 
     }
   }, [_axiosInstance, token]);
 
-  const baseConfig = {
+  const baseConfig = useMemo(() => ({
     baseURL: process.env.REACT_APP_API_BASE_URL,
     headers: undefined,
-  };
+  }), []);
 
   const getAxiosConfig = (config: object | undefined): any => {
     return config ? { ...baseConfig, ...config } : baseConfig;
@@ -54,6 +54,15 @@ const AxiosProvider = ({ token, children }: AxiosProviderProps): JSX.Element => 
     return axiosConfig;
   };
 
+  const sanitizeData = (data: object | undefined) => {
+    if (data && Object.keys(data).length === 1){
+      return Object.values(data)[0];
+    }
+    else {
+      return data;
+    }
+  }
+
   function _get<T>(url: string, config?: object | undefined): Promise<T> {
     const axiosConfig = getAxiosConfig(config);
     return _axiosInstance.get(url, axiosConfig);
@@ -65,16 +74,18 @@ const AxiosProvider = ({ token, children }: AxiosProviderProps): JSX.Element => 
     config?: object | undefined
   ): Promise<T> {
     const axiosConfig = getAxiosPostConfig(data, config);
-    return _axiosInstance.post(url, data, axiosConfig);
+    const sanitizedData = sanitizeData(data);
+    return _axiosInstance.post(url, sanitizedData, axiosConfig);
   }
-
+  
   function _put<T>(
     url: string,
     data?: Object | undefined,
     config?: object | undefined
   ): Promise<T> {
     const axiosConfig = getAxiosPostConfig(data, config);
-    return _axiosInstance.put(url, data, axiosConfig);
+    const sanitizedData = sanitizeData(data);
+    return _axiosInstance.put(url, sanitizedData, axiosConfig);
   }
 
   function _delete<T>(url: string, config?: object | undefined): Promise<T> {

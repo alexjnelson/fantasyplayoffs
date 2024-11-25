@@ -1,9 +1,13 @@
-import { useState, ReactNode, useMemo } from "react";
+import { useState, ReactNode, useMemo, useEffect } from "react";
 import { CredentialResponse } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 
 import AuthContext from "./AuthContext";
-import { authenticate } from "../../services/authService";
+import {
+  authenticate,
+  devCreateAccount,
+  devLogin,
+} from "../../services/authService";
 import useAxios from "../axios/useAxios";
 
 interface AuthProviderProps {
@@ -22,20 +26,39 @@ const AuthProvider = ({
 
   const googleLogin = useMemo(
     () =>
-      !!(process.env.REACT_APP_ENVIRONMENT === "prod" &&
-      process.env.REACT_APP_GOOGLE_CLIENT_ID),
+      !!(
+        process.env.REACT_APP_ENVIRONMENT === "prod" &&
+        process.env.REACT_APP_GOOGLE_CLIENT_ID
+      ),
     []
   );
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setToken(token || undefined);
+      setIsAuthenticated(true);
+    }
+  }, [setToken]);
+
+  const handleLogin = (token: string) => {
+    setToken(token);
+    localStorage.setItem("token", token);
+    setIsAuthenticated(true);
+
+    navigate("/dashboard");
+  };
+
   const handleGoogleLogin = (response: CredentialResponse | undefined) => {
     if (response && response.credential) {
-      authenticate(axios, response.credential);
-
-      setToken(response.credential);
-      localStorage.setItem("token", response.credential);
-      setIsAuthenticated(true);
-
-      navigate("/view-leagues");
+      authenticate(axios, response.credential)
+        .then(() => {
+          handleLogin(response.credential!);
+        })
+        .catch(
+          // TO DO: improve error handling
+          () => alert("Login failed")
+        );
     } else {
       // TO DO: improve error handling
       alert("Login failed");
@@ -43,16 +66,32 @@ const AuthProvider = ({
   };
 
   const handleDevLogin = (email: string) => {
-    // TO DO: send to auth in backend
+    devLogin(axios, email)
+      .then(() => {
+        handleLogin(email);
+      })
+      .catch(
+        // TO DO: improve error handling
+        () => alert("Login failed")
+      );
   };
 
   const handleDevCreateAccount = (email: string, name: string) => {
-    // TO DO: send to auth in backend
+    devCreateAccount(axios, email, name)
+      .then(() => {
+        handleLogin(email);
+      })
+      .catch(
+        // TO DO: improve error handling
+        () => alert("Login failed")
+      );
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("token");
     setToken(undefined);
     setIsAuthenticated(false);
+    navigate("/");
   };
 
   return (

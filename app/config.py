@@ -1,9 +1,10 @@
+from typing import List
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     ENVIRONMENT: str = "dev"
     DATABASE_URL: str = ""
-    ALLOW_ORIGINS: list[str] = []    
+    ALLOW_ORIGINS: List[str] = []
 
     # not necessary for dev environment
     CLIENT_ID: str = ""

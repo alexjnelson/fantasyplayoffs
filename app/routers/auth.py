@@ -62,8 +62,8 @@ async def sso_login_route(id_token: str = Body(...), db: Session = Depends(get_s
 
 @router.post("/dev-login")
 async def dev_login_route(email: str = Body(...), db: Session = Depends(get_session)):
-    if settings.ENVIRONMENT == "prod":
-        raise HTTPException(403, "Dev login disabled on test environment")
+    if settings.ENVIRONMENT != "dev":
+        raise HTTPException(403, "Dev login disabled on prod environment")
 
     user = get_user_by_email(db, email)
     if user is None:
@@ -77,8 +77,8 @@ async def dev_login_route(email: str = Body(...), db: Session = Depends(get_sess
     
 @router.post("/dev-create-user")
 async def dev_create_user_route(email: str = Body(...), name: str = Body(...), db: Session = Depends(get_session)):
-    if settings.ENVIRONMENT == "prod":
-        raise HTTPException(403, "Dev login disabled on test environment")
+    if settings.ENVIRONMENT != "dev":
+        raise HTTPException(403, "Dev login disabled on prod environment")
 
     user = Users(
         id=email,

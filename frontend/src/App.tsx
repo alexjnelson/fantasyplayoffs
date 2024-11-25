@@ -4,11 +4,13 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { useState } from "react";
 
 import Layout from "./components/Layout";
-import HomePage from "./pages/homePage";
 import Dashboard from "./pages/dashboard";
 import AuthProvider from "./utils/auth/AuthProvider";
 import ProtectedRoute from "./ProtectedRoute";
 import AxiosProvider from "./utils/axios/AxiosProvider";
+
+import HomePage from "./pages/homePage";
+import TestPage from "./pages/testPage";
 
 interface PageViewProps {
   token: string | undefined;
@@ -24,8 +26,12 @@ function PageView({ token, setToken }: PageViewProps) {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route
-                path="/view-leagues"
+                path="/dashboard"
                 element={<ProtectedRoute component={Dashboard} />}
+              />
+              <Route
+                path="/testpage"
+                element={<ProtectedRoute component={TestPage} />}
               />
             </Routes>
           </Layout>
