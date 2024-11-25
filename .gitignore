@@ -9,9 +9,7 @@ node_modules
 .pnp
 .pnp.js
 
-coverage
-
-build
+frontend/build
 
 .DS_Store
 .env.local
