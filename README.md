@@ -1,13 +1,6 @@
 ### **Table of Contents**
 
 1. [Quickstart Guide](#quickstart-guide)  
-   - [Prerequisites](#prerequisites)  
-   - [Clone the Repository](#1-clone-the-repository)  
-   - [Setup Environment Variables](#2-setup-environment-variables)  
-   - [Start the LSSDB](#3-start-the-lssdb)  
-   - [Start the Backend](#4-start-the-backend)  
-   - [Start the Frontend](#5-start-the-frontend)  
-   - [Stopping the Services](#stopping-the-services)  
 
 2. [Full Setup Guide](#full-setup-guide)  
    - [Prerequisites](#prerequisites-1)  
