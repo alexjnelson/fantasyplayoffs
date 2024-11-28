@@ -1,7 +1,6 @@
 ### **Table of Contents**
 
 1. [Quickstart Guide](#quickstart-guide)  
-
 2. [Full Setup Guide](#full-setup-guide)  
    - [Prerequisites](#prerequisites-1)  
    - [Environment Setup](#environment-setup)  
@@ -13,7 +12,6 @@
    - [Starting the LSSDB](#starting-the-lssdb)  
    - [Starting the Main App](#starting-the-main-app)  
    - [Starting the Frontend](#starting-the-frontend)  
-
 3. [License](#license)  
 
 ---
