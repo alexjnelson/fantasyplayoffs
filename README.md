@@ -1,9 +1,113 @@
-# Setting up the Fantasy Playoffs app
+# **Quickstart Guide**
+
+### **Prerequisites**
+- Install [Docker](https://www.docker.com/get-started) and [Docker Compose](https://docs.docker.com/compose/install).
+- Ensure Python (>=3.9) and Node.js (>=14) are installed on your machine.
+
+---
+
+### **1. Clone the Repository**
+```bash
+git clone git@github.com:alexjnelson/fantasyplayoffs.git
+cd fantasyplayoffs
+```
+
+---
+
+### **2. Setup Environment Variables**
+Copy the `.env` files to their respective directories (`app/.env`, `LSSDB/.env`, and `frontend/.env`) based on the configuration below:
+
+- **`app/.env`:**
+  ```plaintext
+  ENVIRONMENT=dev
+  DATABASE_URL=postgresql://postgres:mypassword@localhost:5432/mydatabase
+  ALLOW_ORIGINS=["http://localhost:3000","http://localhost:8080"]
+  ```
+
+- **`LSSDB/.env`:**
+  ```plaintext
+  POSTGRES_USER=postgres
+  POSTGRES_PASSWORD=mypassword
+  POSTGRES_DB=mydatabase
+  POSTGRES_PORT=5432
+  ```
+
+- **`frontend/.env`:**
+  ```plaintext
+  REACT_APP_ENVIRONMENT=dev
+  REACT_APP_BASE_URL=http://localhost:3000
+  ```
+
+---
+
+### **3. Start the LSSDB**
+From the `LSSDB` directory:
+```bash
+docker-compose up --build
+```
+This starts the PostgreSQL database and the mock Live Scoring Service.
+
+---
+
+### **4. Start the Backend**
+1. Navigate to the `app` directory:
+   ```bash
+   cd app
+   ```
+
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # Use .venv\Scripts\activate on Windows
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Start the FastAPI app:
+   ```bash
+   uvicorn main:app --reload
+   ```
+
+The backend will be accessible at `http://localhost:8000/` with API documentation at `http://localhost:8000/docs`.
+
+---
+
+### **5. Start the Frontend**
+1. Navigate to the `frontend` directory:
+   ```bash
+   cd frontend
+   ```
+
+2. Install the dependencies:
+   ```bash
+   npm i
+   ```
+
+3. Start the frontend:
+   ```bash
+   npm start
+   ```
+
+The app will open in your browser at `http://localhost:3000`.
+
+---
+
+### **Stopping the Services**
+- **LSSDB:** `docker-compose down` (run in the `LSSDB` directory).
+- **Backend:** Press `CTRL+C` in the terminal running `uvicorn`.
+- **Frontend:** Press `CTRL+C` in the terminal running `npm start`.
+
+---
+
+# Full Setup Guide
 
 ## Prerequisites
 
-- [Docker](https://www.docker.com/get-started)
-- [Docker Compose](https://docs.docker.com/compose/install/)
+- Install [Docker](https://www.docker.com/get-started) and [Docker Compose](https://docs.docker.com/compose/install).
+- Ensure Python (>=3.9) and Node.js (>=14) are installed on your machine.
 
 ## Environment setup
 
@@ -227,6 +331,6 @@ To stop the app, press `CTRL+C`. No cleanup required.
 
 ---
 
-## License
+# License
 
 This project is licensed under the MIT License. See `LICENSE` for details.
