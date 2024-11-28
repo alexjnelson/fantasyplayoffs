@@ -1,4 +1,4 @@
-# Quickstart
+# Setting up the Fantasy Playoffs app
 
 ## Prerequisites
 
@@ -75,7 +75,7 @@ This will:
 
 - Build the Docker image.
 - Start the PostgreSQL container.
-- Start the Live Scoring Service.
+- Start the mock Live Scoring Service.
 - Initialize the database with the schema and mock data.
 
 ---
@@ -162,6 +162,8 @@ Start the FastAPI app in reload mode. As you modify the code, your changes will 
 ```bash
 uvicorn main:app --reload
 ```
+
+---
 
 ### Connect to the backend
 
