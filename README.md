@@ -1,5 +1,3 @@
-The Fantasy Playoff Challenge
-
 # Quickstart
 
 ## Prerequisites
@@ -7,7 +5,7 @@ The Fantasy Playoff Challenge
 - [Docker](https://www.docker.com/get-started)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 
-## Environment Setup
+## Environment setup
 
 ### Clone the repository
 
@@ -102,6 +100,14 @@ You can connect to the PostgreSQL database using any client:
 postgresql://postgres:mypassword@localhost:5432/mydatabase
 ```
 
+#### Accessing the Database from Another Application
+
+If another application (such as the `app` backend) needs to connect to this database, configure its `.env` file with the following connection string:
+
+```
+DATABASE_URL = "postgresql://postgres:mypassword@localhost:5432/mydatabase"
+```
+
 ---
 
 ### Stopping the Database
@@ -125,14 +131,97 @@ docker-compose up --build
 
 ---
 
-## Accessing the Database from Another Project
+## Starting the main app
 
-If another project needs to connect to this database, configure its `.env` file with the following connection string:
+### Create a virtual environment
+
+This will ensure the project requirements don't conflict with any Python packages you have installed on your machine. 
+
+Run the following command in the `app` directory:
+
+```bash
+python -m venv .venv
+```
+
+---
+
+### Install the requirements
+
+Ensure your virtual environment is activated:
+
+```bash
+./.venv/bin/activate
+```
+
+---
+
+### Start the backend
+
+Start the FastAPI app in reload mode. As you modify the code, your changes will be reflected in the FastAPI live.
+
+```bash
+uvicorn main:app --reload
+```
+
+### Connect to the backend
+
+The backend will be accessible at:
 
 ```
-DATABASE_URL = "postgresql://postgres:mypassword@localhost:5432/mydatabase"
+http://localhost:8000/
+```
+
+You can also view the available endpoints at:
 
 ```
+http://localhost:8000/docs
+```
+
+This provides an interactive UI to test the API. Any new endpoints created will be automatically included here.
+
+---
+
+### Stopping the backend
+
+To stop the app, press `CTRL+C`. No cleanup required.
+
+---
+
+## Starting the frontend
+
+### Install the node modules
+
+From the `frontend` directory, run the command:
+
+```bash
+npm i
+```
+
+---
+
+### Start the frontend
+
+To start the frontend:
+
+```bash
+npm start
+```
+
+---
+
+### View the app
+
+The previous step should open the frontend in a new tab. In general, you can view the app at:
+
+```
+http://localhost:3000
+```
+
+---
+
+### Stopping the frontend
+
+To stop the app, press `CTRL+C`. No cleanup required.
 
 ---
 
