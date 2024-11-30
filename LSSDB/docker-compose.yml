@@ -16,7 +16,6 @@ services:
       POSTGRES_PORT: 5432
     volumes:
       - pg_data:/var/lib/postgresql/data # setup persistent database volume
-      - ./init:/docker-entrypoint-initdb.d/ # copy init to docker container
       - ./logs/postgres:/var/log/postgresql  # Log files
     networks:
       - app-network

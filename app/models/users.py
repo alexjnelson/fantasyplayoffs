@@ -7,6 +7,6 @@ class Users(SQLModel, table=True):
         UniqueConstraint("email", name="users_email_key"),
     )
 
-    id: Optional[str] = Field(default=None, primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     email: str

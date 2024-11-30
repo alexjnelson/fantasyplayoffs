@@ -6,9 +6,6 @@ ENV POSTGRES_USER=postgres
 ENV POSTGRES_PASSWORD=mypassword
 ENV POSTGRES_DB=mydatabase
 
-# Copy the PostgreSQL initialization script
-COPY init /docker-entrypoint-initdb.d/
-
 # Copy the requirements.txt file into the container
 COPY requirements.txt .
 

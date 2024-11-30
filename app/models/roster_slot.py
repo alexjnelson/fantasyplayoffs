@@ -6,6 +6,6 @@ class RosterSlot(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     fantasy_team_id: int = Field(foreign_key="fantasy_team.id")
     week_no: int
-    position_id: int = Field(foreign_key="position")
+    position_id: int = Field(foreign_key="position.id")
     nfl_player_game_id: int = Field(foreign_key="nfl_player_game.id")
     nfl_player_game: "NFLPlayerGame" = Relationship()
