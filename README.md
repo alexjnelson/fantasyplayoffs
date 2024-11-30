@@ -53,7 +53,7 @@ Copy the `.env` files to their respective directories (`app/.env`, `LSSDB/.env`,
 - **`frontend/.env`:**
   ```plaintext
   REACT_APP_ENVIRONMENT=dev
-  REACT_APP_BASE_URL=http://localhost:3000
+  REACT_APP_API_BASE_URL=http://localhost:8000
   ```
 
 ---
@@ -178,7 +178,7 @@ POSTGRES_PORT=5432
 
 ```
 REACT_APP_ENVIRONMENT=dev
-REACT_APP_BASE_URL=http://localhost:3000
+REACT_APP_API_BASE_URL=http://localhost:8000
 ```
 
 ---
