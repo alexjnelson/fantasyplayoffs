@@ -1,5 +1,5 @@
-from sqlmodel import SQLModel, Field, UniqueConstraint
-from typing import Optional
+from sqlmodel import SQLModel, Field, UniqueConstraint, Relationship
+from typing import Optional, List
 
 class Users(SQLModel, table=True):
     __tablename__ = "users"
@@ -7,6 +7,7 @@ class Users(SQLModel, table=True):
         UniqueConstraint("email", name="users_email_key"),
     )
 
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: str = Field(default=None, primary_key=True)
     name: str
     email: str
+    teams: Optional[List["FantasyTeam"]] = Relationship()

@@ -1,8 +1,8 @@
 """initial model setup
 
-Revision ID: 4ec1d5e39fa2
+Revision ID: c5bf5156c72c
 Revises: 
-Create Date: 2024-11-30 17:19:13.622825
+Create Date: 2024-11-30 18:02:37.726130
 
 """
 from typing import Sequence, Union
@@ -13,7 +13,7 @@ import sqlmodel
 
 
 # revision identifiers, used by Alembic.
-revision: str = '4ec1d5e39fa2'
+revision: str = 'c5bf5156c72c'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -33,7 +33,7 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('users',
-    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('id', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('name', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('email', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
@@ -41,7 +41,7 @@ def upgrade() -> None:
     )
     op.create_table('league',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('commissioner_id', sa.Integer(), nullable=False),
+    sa.Column('commissioner_id', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('name', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.ForeignKeyConstraint(['commissioner_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -59,7 +59,7 @@ def upgrade() -> None:
     op.create_table('fantasy_team',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('league_id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('team_name', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.ForeignKeyConstraint(['league_id'], ['league.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
