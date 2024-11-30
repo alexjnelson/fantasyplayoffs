@@ -10,4 +10,4 @@ class Users(SQLModel, table=True):
     id: str = Field(default=None, primary_key=True)
     name: str
     email: str
-    teams: Optional[List["FantasyTeam"]] = Relationship()
+    teams: Optional[List["FantasyTeam"]] = Relationship(back_populates="user")
