@@ -11,7 +11,8 @@
       - [Setup Environment Variables](#setup-environment-variables)  
    - [Starting the LSSDB](#starting-the-lssdb)  
    - [Starting the Main App](#starting-the-main-app)  
-   - [Starting the Frontend](#starting-the-frontend)  
+   - [Starting the Frontend](#starting-the-frontend)
+   - [Database migrations with Alembic](#database-migrations-with-alembic)
 3. [License](#license)  
 
 ---
@@ -346,6 +347,61 @@ http://localhost:3000
 ### Stopping the frontend
 
 To stop the app, press `CTRL+C`. No cleanup required.
+
+---
+
+## Database migrations with Alembic
+
+### Ensure the LSSDB development docker is running
+
+To start the docker, navigate to the `LSSDB` directory and run:
+
+```bash
+docker-compose up --build
+```
+
+---
+
+### Update SQLModel file
+
+Make your desired changes in the `app/models` directory. For example, to add a new field, `favoriteTeam` to the `Users` object:
+
+```python
+class Users(SQLModel, table=True):
+   __tablename__ = "users"
+   __table_args__ = (
+      UniqueConstraint("email", name="users_email_key"),
+   )
+
+   id: str = Field(default=None, primary_key=True)
+   name: str
+   email: str
+   teams: Optional[List["FantasyTeam"]] = Relationship(back_populates="user")
+   # adding the new field here!
+   favoriteTeam: Optional[str]
+```
+
+---
+
+### Create a revision with Alembic
+
+From the `app` directory, the following command to create a new migration, with your own descriptive message:
+
+```bash
+alembic revision --autogenerate -m "added favoriteTeam field to Users object"
+```
+
+---
+
+### Apply the migration
+
+When you start the main app, the migration will be applied automatically. When you push your changes, other developers will be able to apply them by simply running the main app as well.
+
+If you want to apply the changes manually, run the command in the `app` directory:
+
+```bash
+alembic upgrade head
+```
 
 ---
 
