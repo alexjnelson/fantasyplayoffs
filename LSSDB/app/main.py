@@ -14,7 +14,6 @@ setup_logging()
 api_logger = logging.getLogger("api")
 sqlalchemy_logger = logging.getLogger("sqlalchemy.engine")
 
-
 app = FastAPI()
 
 @app.get("/")
@@ -78,6 +77,10 @@ async def create_user(email: str = Body(...), name: str = Body(...), db: Session
         "google_id": user.id,
     }
 
+## WEBSOCKET ENDPOINTS ##
+
+active_connections = []
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()  # Accept the WebSocket connection
@@ -90,16 +93,30 @@ async def websocket_endpoint(websocket: WebSocket):
         print("Client disconnected")
 
 @app.websocket("/ws/football")
-async def football_websocket(websocket: WebSocket):
+async def live_data_websocket(websocket: WebSocket):
+    """
+    WebSocket endpoint for live football updates with health monitoring.
+    """
     await websocket.accept()
+    active_connections.append(websocket)  # Add connection to the list
+    api_logger.info(f"New WebSocket connection established: {websocket.client}")
+
     try:
         while True:
-            # Generate mock live data
+            # Generate and send live game data
             mock_data = generate_mock_data()
-            await websocket.send_json(mock_data)  # Send JSON data to the client
-            await asyncio.sleep(5)  # Simulate delay between updates
+            api_logger.info(f"Sent live update to {websocket.client}")
+            await websocket.send_json(mock_data)
+            await asyncio.sleep(5)  # Simulate data updates every 5 seconds
     except WebSocketDisconnect:
-        print("Client disconnected")
+        active_connections.remove(websocket)
+        api_logger.warning(f"WebSocket client disconnected: {websocket.client}")
+    except Exception as e:
+        api_logger.error(f"Error in WebSocket connection with {websocket.client}: {e}")
+    finally:
+        # Ensure the connection is removed even if an exception occurs
+        if websocket in active_connections:
+            active_connections.remove(websocket)
 
 def generate_mock_data():
     # Mock live football data
