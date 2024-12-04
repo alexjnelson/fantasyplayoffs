@@ -1,14 +1,11 @@
 from sqlmodel import Session, select
 
 from models import Users
-from db import handle_add_errors
 
 
-@handle_add_errors
 def create_user(db: Session, user: Users) -> Users:
     db.add(user)
-    db.commit()
-    db.refresh(user)
+    db.flush()
     return user
 
 
