@@ -1,12 +1,18 @@
+from fastapi.security import APIKeyHeader
 import requests
-from fastapi import HTTPException, status
+from fastapi import Depends, HTTPException, status, Header
 from jose import JWTError, jwt
+from jose.exceptions import JWTError
+from sqlmodel import Session
 
+from db import get_session
+from services.users import get_user, get_user_by_email
 from config import settings
 from models import Users
 
 
-from jose.exceptions import JWTError
+api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
+
 
 def decode_google_token(id_token: str) -> dict[str, any]:
     try:
@@ -20,7 +26,7 @@ def decode_google_token(id_token: str) -> dict[str, any]:
             unverified_header = jwt.get_unverified_header(id_token)
         except JWTError as e:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=f"Error decoding token headers: {str(e)}"
             )
 
@@ -28,7 +34,7 @@ def decode_google_token(id_token: str) -> dict[str, any]:
         kid = unverified_header.get("kid")
         if not kid or kid not in {key["kid"] for key in jwks["keys"]}:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Unable to find appropriate key for token"
             )
 
@@ -76,3 +82,39 @@ def authenticate_token(id_token: str) -> Users:
         name=payload.get("name"),
         email=payload.get("email")
     )
+
+
+def extract_token(authorization: str = Depends(api_key_header)):
+    if not authorization:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authorization header missing"
+        )
+    
+    try:
+        scheme, value = authorization.split(" ")
+        if scheme.lower() != "bearer":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authorization scheme must be Bearer"
+            )
+        return value
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Authorization header format"
+        )
+
+
+def get_current_user(value: str = Depends(extract_token), db: Session = Depends(get_session)):
+    if settings.ENVIRONMENT == "dev":
+        user = get_user_by_email(db, value)
+    else:
+        user = authenticate_token(value)
+        user = get_user(user.id)
+
+    if user is not None:
+        return user
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")

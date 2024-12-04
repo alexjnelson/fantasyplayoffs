@@ -37,6 +37,7 @@ async def auth_callback_route(code: str = None, db: Session = Depends(get_sessio
     user = authenticate_token(id_token)
     user = get_or_create_user(db, user)
 
+    db.commit()
     # Return the token(s) to the client
     return {
         "message": "User authenticated successfully",
@@ -54,6 +55,7 @@ async def sso_login_route(id_token: str = Body(...), db: Session = Depends(get_s
     user = authenticate_token(id_token)
     user = get_or_create_user(db, user)
 
+    db.commit()
     return {
         "message": "User authenticated successfully",
         "google_id": user.id,
@@ -87,6 +89,7 @@ async def dev_create_user_route(email: str = Body(...), name: str = Body(...), d
     )
     
     user = get_or_create_user(db, user)
+    db.commit()
     return {
         "message": "User authenticated successfully",
         "google_id": user.id,
