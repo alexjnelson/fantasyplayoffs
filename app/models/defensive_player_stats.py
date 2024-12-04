@@ -10,8 +10,9 @@ class DefensivePlayerStats(SQLModel, table=True):
     sacks: float
     fumble_rec: float
     pts_against_0: float
-    pts_against_1_14: float
-    pts_against_15_21: float
-    pts_against_22_28: float
-    pts_against_29_35: float
+    pts_against_1_6: float
+    pts_against_7_13: float
+    pts_against_14_20: float
+    pts_against_21_27: float
+    pts_against_28_34: float
     pts_against_35_plus: float
