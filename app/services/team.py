@@ -20,7 +20,7 @@ def create_roster_slots_by_position(db: Session, position: Position, slots: int,
     roster_slots = []
 
     for _ in range(slots):
-        for week_no in range(1, 4):
+        for week_no in range(1, 5):
             roster_slot = create_roster_slot(db, team_id, week_no, position.id)
             roster_slots.append(roster_slot)
     
