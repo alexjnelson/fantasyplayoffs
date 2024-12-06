@@ -1,8 +1,20 @@
 from typing import Dict, List
-from fastapi import HTTPException
-from sqlmodel import Session
+from fastapi import Depends, HTTPException
+from sqlmodel import Session, select
 
-from models import FantasyTeam, League, Position, RosterSlot
+from db.db import get_session
+from models import FantasyTeam, League, Position, RosterSlot, Users
+from services.auth import validate_user
+
+
+def validate_user_owns_team(team_id: str, user: Users = Depends(validate_user), db: Session = Depends(get_session)) -> FantasyTeam:
+    statement = select(FantasyTeam).where(FantasyTeam.id == team_id).where(FantasyTeam.user_id == user.id)
+    team_owned_by_user = db.exec(statement).first()
+
+    if team_owned_by_user is None:
+        raise HTTPException(401, "User does not own this team")
+    
+    return team_owned_by_user
 
 
 def create_roster_slot(db: Session, fantasy_team_id: int, week_no: int, position_id: int) -> RosterSlot:
@@ -41,7 +53,7 @@ def populate_roster_slots(db: Session, team: FantasyTeam, league: League, positi
     return [x for xx in roster_slots for x in xx]
 
 
-def create_team( db: Session, user_id: str, team_name: str, league: League, positions: Dict) -> FantasyTeam:
+def create_team(db: Session, user_id: str, team_name: str, league: League, positions: Dict) -> FantasyTeam:
     team = FantasyTeam(
         user_id=user_id, 
         team_name=team_name,
@@ -52,3 +64,8 @@ def create_team( db: Session, user_id: str, team_name: str, league: League, posi
     db.add(team)
     db.flush()
     return team        
+
+
+def update_team_name(team: FantasyTeam, new_team_name: str) -> FantasyTeam:
+    team.team_name = new_team_name
+    return team

@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Body, Depends, status
 from sqlmodel import Session
 
-from db.db import get_session
+from db import get_session
 from models import League, RosterSettings, ScoringSettings, Users
-from services.auth import validate_user, validate_user_in_league
-from services.league import create_league, get_league, get_leagues_for_user, get_teams_in_league, validate_league
+from services.auth import validate_user
+from services.league import create_league, get_leagues_for_user, get_teams_in_league, validate_league
 from services.position import get_positions_by_name
 from services.team import create_team
 

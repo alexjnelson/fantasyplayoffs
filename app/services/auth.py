@@ -1,6 +1,6 @@
 from fastapi.security import APIKeyHeader
 import requests
-from fastapi import Depends, HTTPException, status, Header
+from fastapi import Depends, HTTPException, status
 from jose import JWTError, jwt
 from jose.exceptions import JWTError
 from sqlmodel import Session, select
@@ -119,15 +119,3 @@ def validate_user(authorization: str = Depends(extract_token), db: Session = Dep
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
 
-
-def validate_user_in_league(db: Session, league: League, user: Users):
-    statement = select(FantasyTeam).where(FantasyTeam.league_id == league.id and FantasyTeam.user_id == user.id)
-    team_owned_by_user = db.exec(statement).first()
-
-    if team_owned_by_user is None:
-        raise HTTPException(401, "User does not have a team in this league")
-
-
-def validate_user_owns_team(db: Session, team: FantasyTeam, user: Users):
-    if team.user_id != user.id:
-        raise HTTPException(401, "User does not own this team")
