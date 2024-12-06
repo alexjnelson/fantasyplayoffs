@@ -106,11 +106,11 @@ def extract_token(authorization: str = Depends(api_key_header)):
         )
 
 
-def get_current_user(value: str = Depends(extract_token), db: Session = Depends(get_session)):
+def validate_user(authorization: str = Depends(extract_token), db: Session = Depends(get_session)):
     if settings.ENVIRONMENT == "dev":
-        user = get_user_by_email(db, value)
+        user = get_user_by_email(db, authorization)
     else:
-        user = authenticate_token(value)
+        user = authenticate_token(authorization)
         user = get_user(user.id)
 
     if user is not None:
@@ -118,3 +118,6 @@ def get_current_user(value: str = Depends(extract_token), db: Session = Depends(
     else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+
+
+# def validate_user_and_league(authorization: str = Depends(extract_token))

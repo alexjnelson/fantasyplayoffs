@@ -4,10 +4,15 @@ from sqlmodel import Session
 from db.db import get_session
 from models import RosterSettings, ScoringSettings
 from models.users import Users
-from services import get_current_user, create_league, create_team, get_positions_by_name
+from services import validate_user, create_league, create_team, get_positions_by_name, get_leagues_for_user
 
 
 router = APIRouter(prefix="/league")
+
+
+@router.get("/")
+def get_leagues_route(current_user: Users = Depends(validate_user), db: Session = Depends(get_session)):
+    return get_leagues_for_user(db, current_user)
 
 
 @router.post("/create", status_code=status.HTTP_201_CREATED)
@@ -16,11 +21,10 @@ def create_league_route(
     team_name: str = Body(...), 
     roster_settings: RosterSettings = Body(...), 
     scoring_settings: ScoringSettings = Body(...), 
-    current_user: Users = Depends(get_current_user),
+    current_user: Users = Depends(validate_user),
     db: Session = Depends(get_session)
 ):
     positions = get_positions_by_name(db)
-    
     league = create_league(
         db,
         current_user.id,
@@ -28,7 +32,6 @@ def create_league_route(
         roster_settings,
         scoring_settings
     )
-
     team = create_team(
         db,
         current_user.id,
