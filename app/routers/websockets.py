@@ -1,9 +1,9 @@
 from fastapi import APIRouter
 from typing import Optional
-from enums.live_update_command import LiveUpdateCommand
 import websockets
 import asyncio
 import logging
+from enums.live_update_command import LiveUpdateCommand
 
 router = APIRouter(prefix="/lss")
 
@@ -13,12 +13,12 @@ logger = logging.getLogger("main-service-websocket")
 
 # Global variables
 websocket_connection: Optional[websockets.WebSocketClientProtocol] = None
-receive_task = None  # Reference to the live update task
+receive_task: Optional[asyncio.Task] = None  # Task for receiving updates
 stop_flag = False  # Flag to control live update reception
+recv_lock = asyncio.Lock()  # Prevent concurrent recv calls
+reconnection_task: Optional[asyncio.Task] = None  # Task to manage reconnections
+shutdown_event = asyncio.Event()  # Event to signal shutdown
 
-recv_lock = asyncio.Lock() 
-reconnection_task: Optional[asyncio.Task] = None  # Task to manage the reconnection loop
-shutdown_event = asyncio.Event()  # Used to signal application shutdown
 
 @router.on_event("startup")
 async def start_reconnection_loop():
@@ -30,29 +30,28 @@ async def start_reconnection_loop():
     # Start the reconnection loop as a background task
     reconnection_task = asyncio.create_task(reconnection_loop())
 
+
+connection_lock = asyncio.Lock()
+
 async def reconnection_loop():
-    """
-    Loop to manage WebSocket reconnection attempts.
-    Terminates when the shutdown event is set.
-    """
     global websocket_connection
 
-    uri = "ws://localhost:8080/ws/football"  # WebSocket URL
+    uri = "ws://localhost:8080/websockets/ws/live_data"
 
-    while not shutdown_event.is_set():
-        try:
-            logger.info("Attempting to connect to LSS WebSocket...")
-            websocket_connection = await asyncio.wait_for(websockets.connect(uri), timeout=5)
-            logger.info("WebSocket connection established.")
-            return  # Exit loop on successful connection
-        except asyncio.TimeoutError:
-            logger.warning("Connection attempt timed out.")
-        except Exception as e:
-            logger.error(f"Failed to connect to WebSocket: {e}")
-        logger.info("Retrying in 5 seconds...")
-        await asyncio.sleep(5)  # Retry after delay
-
-    logger.info("Shutdown event set. Exiting reconnection loop.")
+    async with connection_lock:
+        if websocket_connection:
+            logger.info("WebSocket connection already exists. Skipping reconnection.")
+            return
+        while not shutdown_event.is_set():
+            try:
+                logger.info("Attempting to connect to LSS WebSocket...")
+                websocket_connection = await websockets.connect(uri)
+                logger.info("WebSocket connection established.")
+                break
+            except Exception as e:
+                logger.error(f"Failed to connect to WebSocket: {e}")
+                logger.info("Retrying in 5 seconds...")
+                await asyncio.sleep(5)  # Retry after delay
 
 
 @router.post("/start")
@@ -62,26 +61,31 @@ async def start_live_updates():
     """
     global websocket_connection, receive_task, stop_flag
 
+    # Ensure connection is valid
     if not websocket_connection:
-        return {"error": "WebSocket connection not established."}
+        logger.warning("WebSocket connection is closed. Reconnecting...")
+        await reconnection_loop()
+        if not websocket_connection:
+            return {"error": "Failed to establish WebSocket connection."}
 
+    # Prevent duplicate tasks
     if receive_task and not receive_task.done():
         return {"error": "Live updates are already running."}
 
     try:
-        # Protect the send and receive with a lock
+        # Send START command
         async with recv_lock:
             await websocket_connection.send(LiveUpdateCommand.START)
             response = await websocket_connection.recv()
             logger.info(f"Response from LSS: {response}")
 
+        # Start receiving updates
         stop_flag = False
         receive_task = asyncio.create_task(receive_live_updates())
         return {"message": "Live updates started."}
     except Exception as e:
         logger.error(f"Failed to start live updates: {e}")
         return {"error": str(e)}
-
 
 @router.post("/stop")
 async def stop_live_updates():
@@ -90,68 +94,74 @@ async def stop_live_updates():
     """
     global websocket_connection, receive_task, stop_flag
 
+    # Ensure connection is valid
     if not websocket_connection:
         return {"error": "WebSocket connection not established."}
 
-    if receive_task is None or receive_task.done():
+    # Ensure task exists
+    if not receive_task or receive_task.done():
         return {"error": "Live updates are not running."}
 
     try:
-        # Protect the send and receive with a lock
+        # Send STOP command
         async with recv_lock:
             await websocket_connection.send(LiveUpdateCommand.STOP)
             response = await websocket_connection.recv()
             logger.info(f"Response from LSS: {response}")
 
-        # Signal the background task to stop
+        # Stop receiving updates
         stop_flag = True
-        await receive_task  # Wait for the task to finish
+        if receive_task:
+            receive_task.cancel()
+            try:
+                await receive_task
+            except asyncio.CancelledError:
+                logger.info("Receive task cancelled.")
+            receive_task = None
         logger.info("Live updates stopped.")
         return {"message": "Live updates stopped."}
     except Exception as e:
         logger.error(f"Failed to stop live updates: {e}")
-        return {"error": str(e)}
-
+        return {"error": str(e)}    
 
 async def receive_live_updates():
     """
     Task to receive live updates from the WebSocket server.
-    Includes reconnection logic and uses a lock to prevent concurrent recv calls.
     """
     global stop_flag, websocket_connection, recv_lock
 
     while not stop_flag:
         try:
-            async with recv_lock:  # Ensure only one coroutine can call recv
-                if websocket_connection is None:
+            async with recv_lock:
+                if not websocket_connection:
                     logger.warning("WebSocket connection lost. Reconnecting...")
-                    await connect_websocket()  # Attempt reconnection
+                    await reconnection_loop()  # Attempt reconnection
 
-                data = await websocket_connection.recv()  # Receive data
-                logger.info(f"Received Data: {data}")
-        except websockets.exceptions.ConnectionClosedError as e:
+                data = await websocket_connection.recv()
+                logger.info(f"Received live update: {data}")
+        except websockets.ConnectionClosedError as e:
             logger.warning(f"WebSocket connection closed: {e}")
             websocket_connection = None
         except Exception as e:
-            logger.error(f"Error during live updates: {e}")
-            await asyncio.sleep(5)
+            logger.error(f"Error receiving updates: {e}")
+            await asyncio.sleep(5)  # Avoid tight reconnection loops
 
-    logger.info("Receive live updates task has exited.")
+    logger.info("Receive updates task exited.")
 
 
 @router.on_event("shutdown")
 async def shutdown_websocket():
     """
-    Gracefully close the WebSocket connection during shutdown.
+    Gracefully close WebSocket and cancel tasks during shutdown.
     """
     global websocket_connection, reconnection_task
 
     logger.info("Shutting down WebSocket client...")
 
-    # Signal the reconnection loop to stop
+    # Signal shutdown
     shutdown_event.set()
 
-    # Cancel the reconnection loop
+    # Cancel reconnection loop
     if reconnection_task:
         logger.info("Cancelling reconnection loop...")
         reconnection_task.cancel()
@@ -160,7 +170,7 @@ async def shutdown_websocket():
         except asyncio.CancelledError:
             pass
 
-    # Close the WebSocket connection if it's open
+    # Close WebSocket connection
     if websocket_connection:
         logger.info("Closing WebSocket connection...")
         try:
