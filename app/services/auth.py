@@ -3,12 +3,12 @@ import requests
 from fastapi import Depends, HTTPException, status
 from jose import JWTError, jwt
 from jose.exceptions import JWTError
-from sqlmodel import Session, select
+from sqlmodel import Session
 
 from db import get_session
 from services.users import get_user, get_user_by_email
 from config import settings
-from models import League, Users, FantasyTeam
+from models import Users
 
 
 api_key_header = APIKeyHeader(name="Authorization", auto_error=False)

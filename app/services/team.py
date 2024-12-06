@@ -7,7 +7,11 @@ from models import FantasyTeam, League, Position, RosterSlot, Users
 from services.auth import validate_user
 
 
-def validate_user_owns_team(team_id: str, user: Users = Depends(validate_user), db: Session = Depends(get_session)) -> FantasyTeam:
+def validate_user_owns_team(
+    team_id: str, 
+    user: Users = Depends(validate_user),
+    db: Session = Depends(get_session)
+) -> FantasyTeam:
     statement = select(FantasyTeam).where(FantasyTeam.id == team_id).where(FantasyTeam.user_id == user.id)
     team_owned_by_user = db.exec(statement).first()
 
