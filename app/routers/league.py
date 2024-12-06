@@ -43,6 +43,8 @@ def create_league_route(
     )
 
     db.commit()
+    db.refresh(league)
+    db.refresh(team)
     return {"league": league, "team": team}
 
 
