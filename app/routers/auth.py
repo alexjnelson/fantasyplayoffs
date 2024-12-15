@@ -5,7 +5,8 @@ from sqlmodel import Session
 from config import settings
 from db import get_session
 from models import Users
-from services import get_or_create_user, get_user_by_email, get_token, authenticate_token
+from services.auth import authenticate_token, get_token
+from services.users import get_or_create_user, get_user_by_email
 
 
 router = APIRouter(prefix="/auth")
