@@ -17,5 +17,4 @@ def update_team_name_route(
 ):
     updated_team = update_team_name(team, new_team_name)
     db.commit()
-    db.refresh(updated_team)
     return updated_team

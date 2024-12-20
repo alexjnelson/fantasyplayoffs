@@ -17,7 +17,6 @@ class ScoringSettings(SQLModel, table=True):
     fumbles: float
     # Defensive scoring settings
     def_tds: float
-    def_pts: float
     xp_ret_two_pt_conv: float
     ints: float
     sacks: float

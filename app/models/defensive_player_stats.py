@@ -4,7 +4,6 @@ class DefensivePlayerStats(SQLModel, table=True):
     __tablename__ = "defensive_player_stats"
     game_id: int = Field(foreign_key="nfl_player_game.id", primary_key=True)
     def_tds: float
-    def_pts: float
     def_xp_ret_two_pt_conv: float
     ints: float
     sacks: float

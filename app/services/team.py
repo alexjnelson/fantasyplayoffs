@@ -21,6 +21,12 @@ def validate_user_owns_team(
     return team_owned_by_user
 
 
+def get_teams_in_league(db: Session, league: League) -> List[FantasyTeam]:
+    statement = select(FantasyTeam).where(FantasyTeam.league_id == league.id)
+    teams = db.exec(statement).all()
+    return teams
+
+
 def create_roster_slot(db: Session, fantasy_team_id: int, week_no: int, position_id: int) -> RosterSlot:
     roster_slot = RosterSlot(
         fantasy_team_id=fantasy_team_id,
@@ -48,12 +54,16 @@ def populate_roster_slots(db: Session, team: FantasyTeam, league: League, positi
         raise HTTPException(400, "No roster settings found for league when creating team")
 
     roster_slots = []
-    roster_slots.append(create_roster_slots_by_position(db, positions["qb"], league.roster_settings.qb, team.id))
-    roster_slots.append(create_roster_slots_by_position(db, positions["rb"], league.roster_settings.rb, team.id))
-    roster_slots.append(create_roster_slots_by_position(db, positions["wr"], league.roster_settings.wr, team.id))
-    roster_slots.append(create_roster_slots_by_position(db, positions["te"], league.roster_settings.te, team.id))
-    roster_slots.append(create_roster_slots_by_position(db, positions["pk"], league.roster_settings.pk, team.id))
-    roster_slots.append(create_roster_slots_by_position(db, positions["dst"], league.roster_settings.dst, team.id))
+    for pos, slots in [
+        ("qb", league.roster_settings.qb),
+        ("rb", league.roster_settings.rb),
+        ("wr", league.roster_settings.wr),
+        ("te", league.roster_settings.te),
+        ("pk", league.roster_settings.pk),
+        ("dst", league.roster_settings.dst)
+    ]:
+        roster_slots.append(create_roster_slots_by_position(db, positions[pos], slots, team.id))
+
     return [x for xx in roster_slots for x in xx]
 
 
