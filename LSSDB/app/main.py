@@ -64,7 +64,6 @@ async def create_user(email: str = Body(...), name: str = Body(...), db: Session
     try:
         db.add(user)
         db.commit()
-        db.refresh(user)
         api_logger.info(f"User created successfully: {name} ({email})")
     except Exception as e:
         db.rollback()
