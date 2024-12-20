@@ -2,10 +2,8 @@ import subprocess
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.logger import logger
-from alembic import command
-from alembic.config import Config
 
-from routers import auth_router
+from routers import auth_router, league_router, team_router
 from config import settings
 
 
@@ -19,8 +17,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 app.include_router(auth_router, tags=["Auth"])
+app.include_router(league_router, tags=["League"])
+app.include_router(team_router, tags=["Team"])
 
 
 @app.on_event("startup")

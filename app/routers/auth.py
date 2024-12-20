@@ -5,7 +5,8 @@ from sqlmodel import Session
 from config import settings
 from db import get_session
 from models import Users
-from services import get_or_create_user, get_user_by_email, get_token, authenticate_token
+from services.auth import authenticate_token, get_token
+from services.users import get_or_create_user, get_user_by_email
 
 
 router = APIRouter(prefix="/auth")
@@ -37,6 +38,7 @@ async def auth_callback_route(code: str = None, db: Session = Depends(get_sessio
     user = authenticate_token(id_token)
     user = get_or_create_user(db, user)
 
+    db.commit()
     # Return the token(s) to the client
     return {
         "message": "User authenticated successfully",
@@ -54,6 +56,7 @@ async def sso_login_route(id_token: str = Body(...), db: Session = Depends(get_s
     user = authenticate_token(id_token)
     user = get_or_create_user(db, user)
 
+    db.commit()
     return {
         "message": "User authenticated successfully",
         "google_id": user.id,
@@ -87,6 +90,7 @@ async def dev_create_user_route(email: str = Body(...), name: str = Body(...), d
     )
     
     user = get_or_create_user(db, user)
+    db.commit()
     return {
         "message": "User authenticated successfully",
         "google_id": user.id,

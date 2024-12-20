@@ -8,3 +8,4 @@ class RosterSettings(SQLModel, table=True):
     wr: int
     te: int
     pk: int
+    dst: int
